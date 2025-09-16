@@ -1,0 +1,5 @@
+Create a user named ammar with a non-interactive shell on App Server 2 in linux
+
+Solution:
+  ssh username@appserver2     ---> your respective admin user
+sudo useradd -m -s /sbin/nologin <username to create>
