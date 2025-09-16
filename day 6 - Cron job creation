@@ -8,6 +8,18 @@ Step 2; sudo yum install -y cronie
 
 
 b. Add a cron */5 * * * * echo hello > /tmp/cron_text for root user.
+sudo crontab -r   # removes existing crontab completely
+echo '*/5 * * * * echo hello > /tmp/cron_text' | sudo crontab -
+
+sudo crontab -l
+
+*/5 * * * * echo hello > /tmp/cron_text
+
+
+echo hello > /tmp/cron_text
+cat /tmp/cron_text
+
+
 
 
 
