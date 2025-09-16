@@ -1,0 +1,38 @@
+1. Install the required SELinux packages.
+Solution:
+Got it ✅ — installing SELinux packages is a common hardening/configuration task in Linux (especially on RHEL/CentOS-based systems).
+Here’s how you can install them step by step:
+Check Current SELinux Status:
+sestatus
+If the command is not found, it means SELinux tools are not installed — so we proceed with installation.
+Install SELinux Packages:
+sudo yum install -y policycoreutils selinux-policy selinux-policy-targeted policycoreutils-python-utils
+
+Rocky Linux / AlmaLinux:
+sudo dnf install -y policycoreutils selinux-policy selinux-policy-targeted policycoreutils-python-utils
+
+Ubuntu:
+sudo apt update
+sudo apt install -y selinux-basics selinux-policy-default auditd
+Enable SELinux (If Required):
+sudo vi /etc/selinux/config
+Reboot:
+sudo reboot
+
+STatus check: sestatus
+
+2. Permanently disable SELinux for the time being; it will be re-enabled after necessary configuration changes.
+sestatus
+
+sudo vi /etc/selinux/config
+
+
+3. No need to reboot the server, as a scheduled maintenance reboot is already planned for tonight.
+
+4. Disregard the current status of SELinux via the command line; the final status after the reboot should be disabled.
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
