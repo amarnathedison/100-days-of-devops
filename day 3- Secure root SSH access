@@ -1,0 +1,21 @@
+day 3- Secure root SSH access
+Solution
+Step1: SSH into Each App Server
+ssh <your-ssh-user>@<app-server-host>
+Step2: Edit SSH Configuration
+sudo vi /etc/ssh/sshd_config
+Step3: find the below line
+#PermitRootLogin yes
+Step4: make it as follows
+PermitRootLogin no
+Step5: Save and exit (:wq in vi).
+Step 6: Restart SSH Service
+sudo systemctl restart sshd
+Step 7: Verify the configuration
+sudo sshd -T | grep permitrootlogin
+Step 8: Expected output
+permitrootlogin no
+Step 9: Test SSH Access
+ssh root@<app-server-host>
+Step 10: Verify the below output
+Permission denied, please try again.
