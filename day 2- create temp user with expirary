@@ -1,0 +1,7 @@
+Create a user named mark on App Server 3 in Stratos Datacenter. Set the expiry date to 2023-12-07, ensuring the user is created in lowercase as per standard protocol.
+
+  Solution:
+  sudo useradd -e 2023-12-07 mark
+
+  To verify user expirary:
+sudo chage -l mark
