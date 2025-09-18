@@ -1,3 +1,93 @@
 There is a critical issue going on with the Nautilus application in Stratos DC. The production support team identified that the application is unable to connect to the database. 
   After digging into the issue, the team found that mariadb service is down on the database server.
 Look into the issue and fix the same.
+
+------------------------------------------------------------------------------------------------------
+Steps tried:
+
+
+
+
+There is a critical issue going on with the Nautilus application in Stratos DC. The production support team identified that the application is unable to connect to the database. After digging into the issue, the team found that mariadb service is down on the database server.
+
+Job for mariadb.service failed because the control process exited with error code.
+See "systemctl status mariadb.service" and "journalctl -xeu mariadb.service" for details.
+
+× mariadb.service - MariaDB 10.5 database server
+     Loaded: loaded (/usr/lib/systemd/system/mariadb.service; enabled; preset: disabled)
+     Active: failed (Result: exit-code) since Thu 2025-09-18 12:49:29 UTC; 1min 13s ago
+   Duration: 5.240s
+       Docs: man:mariadbd(8)
+             https://mariadb.com/kb/en/library/systemd/
+    Process: 2272 ExecStartPre=/usr/libexec/mariadb-check-socket (code=exited, status=0/SUCCESS)
+    Process: 2306 ExecStartPre=/usr/libexec/mariadb-prepare-db-dir mariadb.service (code=exited, status=1/FAILURE)
+
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com mariadb-prepare-db-dir[2306]: Make sure the /var/lib/mysql is empty before running mariadb-prepare-db-dir.
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Child 2306 belongs to mariadb.service.
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Control process exited, code=exited, status=1/FAILURE
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Got final SIGCHLD for state start-pre.
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Failed with result 'exit-code'.
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Service will not restart (restart setting)
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Changed start-pre -> failed
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Job 238 mariadb.service/start finished, result=failed
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: Failed to start MariaDB 10.5 database server.
+Sep 18 12:49:29 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Unit entered failed state.
+
+ls: cannot access '/var/lib/mysql': No such file or directory
+
+Troubleshooting & Resolution Steps
+
+1. **Identify the Issue**
+   - Observed MariaDB service failure using:
+     - `systemctl status mariadb.service`
+     - `journalctl -xeu mariadb.service`
+   - Key finding: `/var/lib/mysql` directory missing caused `mariadb-prepare-db-dir` to fail.
+
+2. **Verify Directory**
+   - Command: `ls -ld /var/lib/mysql`
+   - Result: No such file or directory.
+
+3. **Resolution Steps**
+   a) **Create Data Directory**
+   ```bash
+   sudo mkdir -p /var/lib/mysql
+   sudo chown -R mysql:mysql /var/lib/mysql
+   sudo chmod 750 /var/lib/mysql
+   ```
+
+   b) **Initialize MariaDB Data Directory**
+   ```bash
+   sudo mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+   ```
+
+   c) **Start MariaDB Service**
+   ```bash
+   sudo systemctl start mariadb
+   sudo systemctl enable mariadb
+   ```
+
+   d) **Secure Installation**
+   ```bash
+   sudo mysql_secure_installation
+   ```
+
+4. **Post-Verification**
+   - Check service status: `systemctl status mariadb`
+   - Verify connectivity:
+   ```bash
+   mysql -u root -p -e "SHOW DATABASES;"
+   ```
+
+5. **Additional Checks (if applicable)**
+   - If `/var/lib/mysql` is supposed to be a mounted disk, ensure disk is mounted before initialization:
+   ```bash
+   lsblk
+   df -h
+   ```
+   - Mount disk if missing, then retry initialization.
+
+6. **Outcome**
+   - MariaDB service should now start successfully.
+   - Application connectivity should be restored.
+   - If production data was lost, restore from backup if available.
+
